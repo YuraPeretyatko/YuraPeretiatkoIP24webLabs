@@ -3,434 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD JS App - Кліпи</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Lab 3</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
+        
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
+            color: #1f2937;
+            margin: 0;
+            padding: 40px 20px;
         }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .controls {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            align-items: flex-end;
+        }
+
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
         label {
             display: block;
-            margin-top: 1rem;
-            font-weight: 500;
+            font-weight: 600;
+            margin-bottom: 8px;
             color: #374151;
         }
-        input[type="text"], input[type="number"], select {
+
+        input, select {
             width: 100%;
-            padding: 0.5rem;
-            margin-top: 0.25rem;
+            padding: 12px;
             border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
         }
-        .btn {
-            width: 100%;
-            padding: 0.6rem;
-            margin-top: 1.5rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
+
+        input:focus, select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
-        .btn-primary {
+
+        button#count-btn {
             background-color: #3b82f6;
             color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            height: 45px;
         }
-        .btn-primary:hover {
+
+        button#count-btn:hover {
             background-color: #2563eb;
-        }
-        .btn-secondary {
-            background-color: #6b7280;
-            color: white;
-        }
-        .btn-secondary:hover {
-            background-color: #4b5563;
-        }
-        .btn-edit {
-            background-color: #f9fafb;
-            color: #374151;
-            border: 1px solid #d1d5db;
-            padding: 0.4rem;
-            margin-top: 1rem;
-            font-weight: 500;
-        }
-        .btn-edit:hover {
-            background-color: #f3f4f6;
         }
 
         #total-result {
-            margin-top: 1rem;
-            padding: 1rem;
-            background-color: #e5e7eb;
-            border-radius: 0.375rem;
+            margin-top: 15px;
             text-align: center;
-            font-weight: 600;
-            color: #1f2937;
+            font-weight: 700;
+            color: #059669;
+            background: #d1fae5;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
         }
 
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 100;
-            display: none; 
-            justify-content: center;
-            align-items: center;
+        #total-result.visible {
+            display: block;
         }
-        .modal-visible {
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
             display: flex;
+            flex-direction: column;
         }
 
-        .modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            width: 90%;
-            max-width: 500px;
-            position: relative;
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
-        .modal-close-btn {
-            position: absolute;
-            top: 0.75rem;
-            right: 0.75rem;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #9ca3af;
-            cursor: pointer;
-            line-height: 1;
+
+        .card-header {
+            height: 8px;
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
         }
-        .modal-close-btn:hover {
-            color: #1f2937;
+
+        .card-body {
+            padding: 25px;
         }
-        
-        #error-modal-content {
-            border-top: 5px solid #ef4444;
+
+        .card h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.25rem;
+            color: #111827;
         }
-        #error-modal-content h2 {
-            color: #dc2626;
+
+        .card h4 {
+            margin: 0 0 20px 0;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .card-stats {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 15px;
+            border-top: 1px solid #e5e7eb;
+            font-size: 0.9rem;
+            color: #4b5563;
+            font-weight: 500;
         }
     </style>
 </head>
-<body class="p-8">
+<body>
 
-    <header class="mb-8">
-        <h1 class="text-4xl font-bold text-gray-800">Музичні Кліпи (CRUD View)</h1>
-    </header>
+    <div class="container">
+        <header>
+            <h1> Менеджер Кліпів</h1>
+            <p class="subtitle">Лабораторна №3: Фільтрація, Сортування та Підрахунок</p>
+        </header>
 
-    <main class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-
-        <aside class="lg:col-span-1 bg-white p-6 rounded-lg shadow-lg h-fit">
-            <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Панель керування</h2>
-            
-            <div>
-                <button id="create-new-btn" class="btn btn-primary">Створити новий кліп</button>
+        <aside class="controls">
+            <div class="control-group">
+                <label for="search-input">Пошук</label>
+                <input type="text" id="search-input" placeholder="Введіть виконавця або пісню...">
             </div>
 
-            <div>
-                <label for="search">Пошук</label>
-                <input type="text" id="search-input" placeholder="Пошук за виконавцем/назвою...">
-            </div>
-
-            <div>
-                <label for="sort">Сортувати за:</label>
+            <div class="control-group">
+                <label for="sort-select">Сортування</label>
                 <select id="sort-select">
-                    <option value="artist-asc">Виконавець (А-Я)</option>
-                    <option value="artist-desc">Виконавець (Я-А)</option>
-                    <option value="song-asc">Назва (А-Я)</option>
-                    <option value="song-desc">Назва (Я-А)</option>
-                    <option value="views-desc">Перегляди (макс.)</option>
-                    <option value="views-asc">Перегляди (мін.)</option>
-                    <option value="duration-desc">Тривалість (довші)</option>
-                    <option value="duration-asc">Тривалість (коротші)</option>
+                    <option value="default">-- За замовчуванням --</option>
+                    <option value="views-desc"> Найпопулярніші (Більше -> Менше)</option>
+                    <option value="views-asc"> Найменш популярні (Менше -> Більше)</option>
+                    <option value="artist-asc"> Виконавець (А -> Я)</option>
                 </select>
             </div>
 
-            <div>
-                <button id="count-total-btn" class="btn btn-secondary">Порахувати загальні перегляди</button>
-                <div id="total-result" class="hidden"></div>
+            <div class="control-group">
+                <button id="count-btn">Підрахувати перегляди</button>
+                <div id="total-result"></div>
             </div>
         </aside>
 
-        <section class="lg:col-span-3">
-            <div id="clips-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            </div>
-        </section>
-
-    </main>
-
-
-    <div id="clip-modal" class="modal-overlay">
-        <div class="modal-content">
-            <span id="modal-close-btn" class="modal-close-btn">&times;</span>
-            <h2 id="modal-title" class="text-2xl font-bold mb-4">Заголовок</h2>
-            
-            <form id="clip-form" novalidate>
-                <input type="hidden" id="clip-id-input">
-                <div>
-                    <label for="artist-input">Виконавець</label>
-                    <input type="text" id="artist-input" placeholder="Kalush Orchestra" required minlength="2">
-                </div>
-                <div>
-                    <label for="song-input">Назва пісні</label>
-                    <input type="text" id="song-input" placeholder="Stefania" required minlength="2">
-                </div>
-                <div>
-                    <label for="duration-input">Тривалість (в секундах)</label>
-                    <input type="number" id="duration-input" placeholder="180" required min="1">
-                </div>
-                <div>
-                    <label for="views-input">Кількість переглядів</label>
-                    <input type="number" id="views-input" placeholder="50000000" required min="0">
-                </div>
-                
-                <button type="submit" id="save-btn" class="btn btn-primary">Зберегти</button>
-            </form>
-        </div>
+        <main id="clips-container" class="grid-container">
+        </main>
     </div>
 
-    <div id="error-modal" class="modal-overlay">
-        <div id="error-modal-content" class="modal-content">
-            <span id="error-close-btn" class="modal-close-btn">&times;</span>
-            <h2 class="text-2xl font-bold mb-4">Помилка валідації</h2>
-            <p id="error-message" class="text-gray-700">Текст помилки.</p>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-
-            let clipsData = [
-                { artist: 'Kalush Orchestra', song: 'Stefania', duration: 180, views: 50456123 },
-                { artist: 'Okean Elzy', song: 'Bez boyu', duration: 235, views: 10567890 },
-                { artist: 'Go_A', song: 'SHUM', duration: 178, views: 25987654 },
-                { artist: 'Jamala', song: '1944', duration: 183, views: 30123456 },
-                { artist: 'Antytila', song: 'Fortetsya Bakhmut', duration: 280, views: 15789012 },
-                { artist: 'Okean Elzy', song: 'Obiymy', duration: 220, views: 45001234 },
-                { artist: 'MONATIK', song: 'Kruzhit', duration: 210, views: 120500800 },
-                { artist: 'alyona alyona & Jerry Heil', song: 'Teresa & Maria', duration: 175, views: 18400000 }
-            ];
-
-            let initialClips = clipsData.map((clip, index) => ({
-                ...clip,
-                id: crypto.randomUUID()
-            }));
-
-            const container = document.getElementById('clips-container');
-            const searchInput = document.getElementById('search-input');
-            const sortSelect = document.getElementById('sort-select');
-            const countButton = document.getElementById('count-total-btn');
-            const totalResult = document.getElementById('total-result');
-            const createNewBtn = document.getElementById('create-new-btn');
-            
-            const clipModal = document.getElementById('clip-modal');
-            const modalCloseBtn = document.getElementById('modal-close-btn');
-            const modalTitle = document.getElementById('modal-title');
-            const clipForm = document.getElementById('clip-form');
-            const saveBtn = document.getElementById('save-btn');
-            const clipIdInput = document.getElementById('clip-id-input');
-            const artistInput = document.getElementById('artist-input');
-            const songInput = document.getElementById('song-input');
-            const durationInput = document.getElementById('duration-input');
-            const viewsInput = document.getElementById('views-input');
-
-            const errorModal = document.getElementById('error-modal');
-            const errorCloseBtn = document.getElementById('error-close-btn');
-            const errorMessage = document.getElementById('error-message');
-
-
-            function formatDuration(seconds) {
-                const minutes = Math.floor(seconds / 60);
-                const remainingSeconds = seconds % 60;
-                return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-            }
-
-            function renderClips(clips) {
-                container.innerHTML = '';
-
-                if (clips.length === 0) {
-                    container.innerHTML = '<p class="text-gray-500 text-lg lg:col-span-3 text-center">Кліпи не знайдено.</p>';
-                    return;
-                }
-                
-                const clipsHTML = clips.map(clip => {
-                    return `
-                        <div class="bg-white p-5 rounded-lg shadow-md transition-shadow hover:shadow-xl flex flex-col justify-between">
-                            <div>
-                                <h3 class="text-2xl font-bold text-blue-600">${clip.artist}</h3>
-                                <p class="text-xl text-gray-800 my-1">"${clip.song}"</p>
-                                <div class="mt-3 text-gray-600">
-                                    <p><strong>Перегляди:</strong> ${clip.views.toLocaleString('uk-UA')}</p>
-                                    <p><strong>Тривалість:</strong> ${formatDuration(clip.duration)}</p>
-                                </div>
-                            </div>
-                            <button class="btn btn-edit" data-id="${clip.id}">Редагувати</button>
-                        </div>
-                    `;
-                }).join('');
-
-                container.innerHTML = clipsHTML;
-            }
-
-            function updateDisplay() {
-                const searchTerm = searchInput.value.toLowerCase();
-                const sortBy = sortSelect.value;
-
-                let filteredClips = initialClips.filter(clip => {
-                    const artistMatch = clip.artist.toLowerCase().includes(searchTerm);
-                    const songMatch = clip.song.toLowerCase().includes(searchTerm);
-                    return artistMatch || songMatch;
-                });
-
-                let sortedClips = [...filteredClips]; 
-                
-                switch (sortBy) {
-                    case 'artist-asc': sortedClips.sort((a, b) => a.artist.localeCompare(b.artist)); break;
-                    case 'artist-desc': sortedClips.sort((a, b) => b.artist.localeCompare(a.artist)); break;
-                    case 'song-asc': sortedClips.sort((a, b) => a.song.localeCompare(b.song)); break;
-                    case 'song-desc': sortedClips.sort((a, b) => b.song.localeCompare(a.song)); break;
-                    case 'views-desc': sortedClips.sort((a, b) => b.views - a.views); break;
-                    case 'views-asc': sortedClips.sort((a, b) => a.views - b.views); break;
-                    case 'duration-desc': sortedClips.sort((a, b) => b.duration - a.duration); break;
-                    case 'duration-asc': sortedClips.sort((a, b) => a.duration - b.duration); break;
-                }
-
-                renderClips(sortedClips);
-            }
-
-            function calculateTotalViews() {
-                const searchTerm = searchInput.value.toLowerCase();
-                const filteredClips = initialClips.filter(clip => 
-                    clip.artist.toLowerCase().includes(searchTerm) || 
-                    clip.song.toLowerCase().includes(searchTerm)
-                );
-                
-                const totalViews = filteredClips.reduce((total, clip) => {
-                    return total + clip.views;
-                }, 0); 
-
-                totalResult.textContent = `Загальні перегляди (у фільтрі): ${totalViews.toLocaleString('uk-UA')}`;
-                totalResult.classList.remove('hidden');
-            }
-
-
-            function showErrorModal(message) {
-                errorMessage.textContent = message;
-                errorModal.classList.add('modal-visible');
-            }
-
-            function hideErrorModal() {
-                errorModal.classList.remove('modal-visible');
-            }
-
-
-            function showClipModal(mode, clipId = null) {
-                clipForm.reset(); 
-                
-                if (mode === 'create') {
-                    modalTitle.textContent = 'Створити новий кліп';
-                    saveBtn.textContent = 'Створити';
-                    clipForm.dataset.mode = 'create';
-                    clipIdInput.value = '';
-                } else if (mode === 'edit') {
-                    modalTitle.textContent = 'Редагувати кліп';
-                    saveBtn.textContent = 'Зберегти зміни';
-                    clipForm.dataset.mode = 'edit';
-                    
-                    const clip = initialClips.find(c => c.id === clipId);
-                    if (clip) {
-                        clipIdInput.value = clip.id;
-                        artistInput.value = clip.artist;
-                        songInput.value = clip.song;
-                        durationInput.value = clip.duration;
-                        viewsInput.value = clip.views;
-                    }
-                }
-                clipModal.classList.add('modal-visible');
-            }
-
-            function hideClipModal() {
-                clipModal.classList.remove('modal-visible');
-            }
-
-            function handleFormSubmit(event) {
-                event.preventDefault(); 
-
-                const artist = artistInput.value.trim();
-                const song = songInput.value.trim();
-                const duration = parseInt(durationInput.value, 10);
-                const views = parseInt(viewsInput.value, 10);
-
-                if (artist.length < 2) {
-                    return showErrorModal('Ім\'я виконавця має бути щонайменше 2 символи.');
-                }
-                if (song.length < 2) {
-                    return showErrorModal('Назва пісні має бути щонайменше 2 символи.');
-                }
-                if (isNaN(duration) || duration <= 0) {
-                    return showErrorModal('Тривалість має бути позитивним числом (в секундах).');
-                }
-                if (isNaN(views) || views < 0) {
-                    return showErrorModal('Кількість переглядів не може бути негативним числом.');
-                }
-
-                const mode = clipForm.dataset.mode;
-                const clipData = { artist, song, duration, views };
-
-                if (mode === 'create') {
-                    clipData.id = crypto.randomUUID(); 
-                    initialClips.push(clipData);
-                } else if (mode === 'edit') {
-                    const clipId = clipIdInput.value;
-                    const clipIndex = initialClips.findIndex(c => c.id === clipId);
-                    if (clipIndex !== -1) {
-                        initialClips[clipIndex] = { ...clipData, id: clipId };
-                    }
-                }
-
-                hideClipModal();
-                updateDisplay(); 
-            }
-
-            
-            searchInput.addEventListener('input', updateDisplay);
-            sortSelect.addEventListener('change', updateDisplay);
-            countButton.addEventListener('click', calculateTotalViews);
-            createNewBtn.addEventListener('click', () => showClipModal('create'));
-
-            container.addEventListener('click', (event) => {
-                const editButton = event.target.closest('.btn-edit');
-                if (editButton) {
-                    const clipId = editButton.dataset.id;
-                    showClipModal('edit', clipId);
-                }
-            });
-
-            clipForm.addEventListener('submit', handleFormSubmit);
-            modalCloseBtn.addEventListener('click', hideClipModal);
-            clipModal.addEventListener('click', (event) => {
-                if (event.target === clipModal) {
-                    hideClipModal();
-                }
-            });
-
-            errorCloseBtn.addEventListener('click', hideErrorModal);
-            errorModal.addEventListener('click', (event) => {
-                if (event.target === errorModal) {
-                    hideErrorModal();
-                }
-            });
-
-            updateDisplay();
-
-        });
-    </script>
-
+    <script src="script.js"></script>
 </body>
 </html>
